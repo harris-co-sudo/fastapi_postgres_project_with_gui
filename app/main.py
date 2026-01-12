@@ -2,6 +2,10 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.db import SessionLocal, init_db, User
 from app.models import UserCreate
+from dotenv import load_dotenv
+import os
+
+load_dotenv(".env")  # ensures the .env file is loaded
 
 app = FastAPI()
 

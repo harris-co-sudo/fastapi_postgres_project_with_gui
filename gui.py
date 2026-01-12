@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import requests
 
-API_URL = "http://13.220.93.41:8000/users/"
+API_URL = "http://50.17.105.251:8000/users/"
 
 def add_user():
     name = entry_name.get()

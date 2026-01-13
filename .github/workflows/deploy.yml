@@ -13,11 +13,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup SSH key
-        run: mkdir -p ~/.ssh && echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/deploy_key.pem && chmod 600 ~/.ssh/deploy_key.pem
+      - name: Test Secrets
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+        run: |
+          echo "EC2_USER is set: ${EC2_USER:-NOT SET}"
+          echo "EC2_IP is set: ${EC2_IP:-NOT SET}"
 
       - name: Test SSH connection
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "echo SSH connection successful"
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+          EC2_PEM_KEY: ${{ secrets.EC2_PEM_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$EC2_PEM_KEY" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem $EC2_USER@$EC2_IP "echo SSH connection successful"
 
       - name: Deploy to EC2
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd ~/fastapi_postgres_project_with_gui && docker-compose down || true && git pull origin main && docker-compose up -d --build"
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+          EC2_PEM_KEY: ${{ secrets.EC2_PEM_KEY }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem $EC2_USER@$EC2_IP "cd ~/fastapi_postgres_project_with_gui && docker-compose down || true && git pull origin main && docker-compose up -d --build"

@@ -10,28 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/deploy_key.pem
-        chmod 600 ~/.ssh/deploy_key.pem
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
 
-    - name: Test SSH connection   # 👈 THIS STEP
-      run: |
-        ssh -o StrictHostKeyChecking=no \
-            -i ~/.ssh/deploy_key.pem \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} \
-            "echo 'SSH connection successful!'"
+      - name: Test SSH connection
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "echo SSH connection successful"
 
-    - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem \
-        ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
-          cd ~/fastapi_postgres_project_with_gui || exit 1
-          docker-compose down || true
-          git pull origin main
-          docker-compose up -d --build
-        EOF
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "

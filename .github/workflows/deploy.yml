@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Setup SSH key
@@ -19,22 +19,19 @@ jobs:
         echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/deploy_key.pem
         chmod 600 ~/.ssh/deploy_key.pem
 
-    - name: Test SSH connection
+    - name: Test SSH connection   # 👈 THIS STEP
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ubuntu@${{ secrets.EC2_IP }} "echo 'SSH connection successful!'"
+        ssh -o StrictHostKeyChecking=no \
+            -i ~/.ssh/deploy_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} \
+            "echo 'SSH connection successful!'"
 
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key.pem \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
           cd ~/fastapi_postgres_project_with_gui || exit 1
-
-          echo "Stopping old containers..."
           docker-compose down || true
-
-          echo "Pulling latest code..."
-          git reset --hard
           git pull origin main
-
-          echo "Building and starting Docker containers..."
           docker-compose up -d --build
         EOF

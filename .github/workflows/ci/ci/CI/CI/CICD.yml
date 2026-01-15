@@ -1,5 +1,6 @@
-name: Local CI/CD
+name: Local CI/CD Deployment
 
+# Trigger workflow when you push to the main branch
 on:
   push:
     branches:
@@ -7,9 +8,22 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted    # this tells GitHub to use YOUR PC
+    # Use your self-hosted runner on Windows
+    runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v3
-      - run: docker-compose down
-      - run: docker-compose up -d --build
+      # Step 1: Checkout the code from GitHub
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Stop any currently running containers
+      - name: Stop existing containers
+        run: docker-compose down
+
+      # Step 3: Build and start your containers
+      - name: Build and start containers
+        run: docker-compose up -d --build
+
+      # Step 4: List running containers (optional, for verification)
+      - name: Show running containers
+        run: docker ps

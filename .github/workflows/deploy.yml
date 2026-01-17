@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout code
+    # Step 1: Checkout the code
     - uses: actions/checkout@v3
 
     # Step 2: Set up Python
@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements.txt || echo "No requirements.txt found"
         pip install pytest
 
     # Step 4: Run Python tests (won't fail if no tests)
@@ -36,15 +36,19 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # Step 6: Log in to Docker Hub using GitHub secrets
-    - name: Log in to Docker Hub
+    # Step 6: Conditionally log in to Docker Hub if secrets exist
+    - name: Log in to Docker Hub (optional)
+      if: secrets.DOCKER_USERNAME && secrets.DOCKER_PASSWORD
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}   # Use the name of your secret here
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Step 7: Build and push Docker images
-    - name: Build and push Docker images
-      run: |
-        docker compose build
-        docker compose push
+    # Step 7: Build Docker images
+    - name: Build Docker images
+      run: docker compose build
+
+    # Step 8: Push Docker images if secrets exist
+    - name: Push Docker images (optional)
+      if: secrets.DOCKER_USERNAME && secrets.DOCKER_USERNAME
+      run: docker compose push

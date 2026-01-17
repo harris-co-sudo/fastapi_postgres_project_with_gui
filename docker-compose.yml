@@ -7,13 +7,14 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mydatabase
     ports:
-      - "5433:5432"  # host:container
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
 
   api:
-    build: .
+    build:
+      context: .
     container_name: fastapi_api
     depends_on:
       - db
@@ -22,6 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/mydatabase
     restart: always
+    command: ./wait-for-db.sh
 
 volumes:
   pgdata:

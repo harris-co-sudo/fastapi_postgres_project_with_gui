@@ -1,12 +1,14 @@
 #!/bin/sh
-set -e
+# wait-for-db.sh
 
-host="$1"
-shift
+echo "Waiting for Postgres database to be ready..."
 
-until pg_isready -h "$host"; do
-  echo "Waiting for Postgres..."
+# Loop until Postgres is ready
+while ! pg_isready -h db -p 5432 -U postgres; do
   sleep 2
 done
 
-exec "$@"
+echo "Database is ready! Starting FastAPI..."
+
+# Start FastAPI
+exec uvicorn main:app --host 0.0.0.0 --port 8000

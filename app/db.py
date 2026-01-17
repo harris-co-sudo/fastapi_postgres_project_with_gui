@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/mydatabase"
+DATABASE_URL = "postgresql://postgres:postgres@db:5433/mydatabase"
 
 # Retry DB connection
 for _ in range(10):

@@ -13,8 +13,7 @@ services:
     restart: always
 
   api:
-    build:
-      context: .
+    build: .
     container_name: fastapi_api
     depends_on:
       - db
